@@ -47,18 +47,19 @@ class ordenProducto
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'ordenProducto');
     }
 
-    public static function actualizarEstadoOrdenAndTiempoPreparacionPorSector($nroDelPedidoRelacionado, $nuevoEstado, $nuevoTiempo, $tipoDeEmpleado)
+    public static function actualizarEstadoOrdenAndTiempoPreparacionPorSector($nroDelPedidoRelacionado, $nuevoEstado, $nuevoTiempo, $tipoDeEmpleado, $idEmpleado)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta(
         "UPDATE ordenes_productos  INNER JOIN productos on ordenes_productos.idDelProductoElegido=productos.id 
-        set ordenes_productos.estado = :nuevoEstado, ordenes_productos.tiempoEstimadoDePreparacion = :tiempo 
+        set ordenes_productos.estado = :nuevoEstado, ordenes_productos.tiempoEstimadoDePreparacion = :tiempo, ordenes_productos.idEmpleadoQuePrepararaLaOrden = :id
         WHERE nroDePedidoAlQueCorrespondeLaOrden = :numPedido AND productos.sectorEncargado = :sector AND ordenes_productos.estado = 'pendiente'
         LIMIT 1");
         $consulta->bindValue(':numPedido', $nroDelPedidoRelacionado, PDO::PARAM_STR);
         $consulta->bindValue(':nuevoEstado', $nuevoEstado, PDO::PARAM_STR);
         $consulta->bindValue(':tiempo', $nuevoTiempo);
         $consulta->bindValue('sector', $tipoDeEmpleado, PDO::PARAM_STR);
+        $consulta->bindValue(':id', $idEmpleado, PDO::PARAM_STR);
         $consulta->execute();
 
         return $consulta->rowCount();
@@ -69,7 +70,8 @@ class ordenProducto
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta(
         "UPDATE ordenes_productos  INNER JOIN productos on ordenes_productos.idDelProductoElegido=productos.id 
-        set ordenes_productos.estado = :nuevoEstado WHERE nroDePedidoAlQueCorrespondeLaOrden = :numPedido AND productos.sectorEncargado = :sector");
+        set ordenes_productos.estado = :nuevoEstado WHERE nroDePedidoAlQueCorrespondeLaOrden = :numPedido AND productos.sectorEncargado = :sector AND ordenes_productos.estado = 'en preparacion'
+        LIMIT 1");
         $consulta->bindValue(':numPedido', $nroDelPedidoRelacionado, PDO::PARAM_STR);
         $consulta->bindValue(':nuevoEstado', $nuevoEstado, PDO::PARAM_STR);
         $consulta->bindValue(':sector', $tipoDeEmpleado, PDO::PARAM_STR);
@@ -109,6 +111,22 @@ class ordenProducto
 
         return $consulta->rowCount();
     }
+
+    /*
+    public static function asignarEmpleadoQuePrepararaLaOrden($nroDelPedidoRelacionado, $idEmpleado, $sector)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta(
+        "UPDATE ordenes_productos  INNER JOIN productos on ordenes_productos.idDelProductoElegido=productos.id 
+        SET ordenes_productos.idEmpleadoQuePrepararaLaOrden = :id WHERE nroDePedidoAlQueCorrespondeLaOrden = :numPedido AND productos.sectorEncargado = :sector AND ordenes_productos.estado = 'pendiente'
+        LIMIT 1");
+        $consulta->bindValue(':numPedido', $nroDelPedidoRelacionado, PDO::PARAM_STR);
+        $consulta->bindValue(':id', $idEmpleado, PDO::PARAM_STR);
+        $consulta->bindValue(':sector', $sector, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->rowCount();
+    }*/
 
     
 }

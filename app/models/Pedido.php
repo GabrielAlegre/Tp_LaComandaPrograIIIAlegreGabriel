@@ -7,6 +7,7 @@ class Pedido
     public $nroDePedido;
     public $estado;
     public $codigoDeMesaAsociada;
+    public $idMozoEncargado;
     public $tiempoDeFinalizacionEstimado;
     public $precioTotal;
     public $pathFoto;
@@ -15,12 +16,13 @@ class Pedido
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta(
-        "INSERT INTO pedidos (nombreDelCliente, nroDePedido, estado, codigoDeMesaAsociada, pathFoto) 
-         VALUES (:nombreCliente, :numPedido, :estado, :codigoMesa, :pathImg)");
+        "INSERT INTO pedidos (nombreDelCliente, nroDePedido, estado, codigoDeMesaAsociada, idMozoEncargado, pathFoto) 
+         VALUES (:nombreCliente, :numPedido, :estado, :codigoMesa, :idMozo, :pathImg)");
 
         $consulta->bindValue(':nombreCliente', $this->nombreDelCliente, PDO::PARAM_STR);
         $consulta->bindValue(':numPedido', $this->nroDePedido, PDO::PARAM_STR);
         $consulta->bindValue(':codigoMesa', $this->codigoDeMesaAsociada, PDO::PARAM_STR);
+        $consulta->bindValue(':idMozo', $this->idMozoEncargado, PDO::PARAM_STR);
         $consulta->bindValue(':estado', "Esperando que el cliente ordene" , PDO::PARAM_STR);
         if(empty($this->pathFoto))
         {
@@ -96,8 +98,6 @@ class Pedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
 
-
-
     public static function obtenerPrecioTotalDelPedido($numeroPedido)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -109,7 +109,5 @@ class Pedido
         $consulta->execute();
         
         return $consulta->fetchColumn();
-    }
-
-    
+    }    
 }

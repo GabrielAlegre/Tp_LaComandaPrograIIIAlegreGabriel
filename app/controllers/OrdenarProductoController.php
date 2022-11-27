@@ -81,7 +81,7 @@ class OrdenarProductoController extends Producto
   public function TraerPendientes($request, $response, $args)
   {
       $numPedido = $args['nroPedido'];
-      $sector = OrdenarProductoController::conseguirTipoDeEmpleadoPorElToken($request);
+      $sector = OrdenarProductoController::conseguirDatosDelEmpleadoPorElToken($request, "sector");
       $lista = ordenProducto::obtenerOrdenesPorSuEstadoAndSector($numPedido, $sector, "pendiente");
       $payload = !empty($lista)?json_encode(array("OrdenesPendientes" => $lista)):json_encode(array("OrdenesPendientes" => "No se ordeno ningun producto en el pedido '{$numPedido}' correspondiente al sector '{$sector}'"));
       $response->getBody()->write($payload);
@@ -92,7 +92,7 @@ class OrdenarProductoController extends Producto
   public function TraerOrdenesEnPreparacion($request, $response, $args)
   {
       $numPedido = $args['nroPedido'];
-      $sector = OrdenarProductoController::conseguirTipoDeEmpleadoPorElToken($request);
+      $sector = OrdenarProductoController::conseguirDatosDelEmpleadoPorElToken($request, "sector");
       $lista = ordenProducto::obtenerOrdenesPorSuEstadoAndSector($numPedido, $sector, "en preparacion");
       $payload = !empty($lista)?json_encode(array("OrdenesEnPreparacion" => $lista)):json_encode(array("OrdenesEnPreparacion" => "No se ordeno ningun producto en el pedido '{$numPedido}' correspondiente al sector '{$sector}'"));
       $response->getBody()->write($payload);
@@ -103,9 +103,10 @@ class OrdenarProductoController extends Producto
   public function cambiarEstadoEnPreparacionYAsignarTimpo($request, $response, $args)
   {
       $numPedido = $args['nroPedido'];
-      $sector = OrdenarProductoController::conseguirTipoDeEmpleadoPorElToken($request);
+      $sector = OrdenarProductoController::conseguirDatosDelEmpleadoPorElToken($request, "sector");
+      $idDelEmpleadoQuePrepararaLaOrden = OrdenarProductoController::conseguirDatosDelEmpleadoPorElToken($request, "id");
       $tiempoEstimadoDePreparacion = $sector=="cocinero"?rand(15,55):rand(3,8);
-      $seCambioEstado = ordenProducto::actualizarEstadoOrdenAndTiempoPreparacionPorSector($numPedido, "en preparacion", $tiempoEstimadoDePreparacion, $sector);
+      $seCambioEstado = ordenProducto::actualizarEstadoOrdenAndTiempoPreparacionPorSector($numPedido, "en preparacion", $tiempoEstimadoDePreparacion, $sector, $idDelEmpleadoQuePrepararaLaOrden);
       if($seCambioEstado)
       {
         Pedido::actualizarEstadoPedido($numPedido, "en preparacion");
@@ -125,8 +126,9 @@ class OrdenarProductoController extends Producto
   public function cambiarEstadoEnListoParaServir($request, $response, $args)
   {
       $numPedido = $args['nroPedido'];
-      $sector = OrdenarProductoController::conseguirTipoDeEmpleadoPorElToken($request);
+      $sector = OrdenarProductoController::conseguirDatosDelEmpleadoPorElToken($request, "sector");
       $seCambioEstado = ordenProducto::actualizarEstadoEnListoParaServir($numPedido, "listo para servir", $sector);
+      echo $seCambioEstado;
       $pedidoCambioEstado = PedidoController::cambiarEstadoAlPedidoEnListoParaServir($numPedido);
 
       if($pedidoCambioEstado)
@@ -143,10 +145,18 @@ class OrdenarProductoController extends Producto
         ->withHeader('Content-Type', 'application/json');
   }
 
-  public static function conseguirTipoDeEmpleadoPorElToken($request)
+  public static function conseguirDatosDelEmpleadoPorElToken($request, $queDatoConseguir)
   {
     $header = $request->getHeaderLine('authorization');
     $token = trim(explode("Bearer", $header)[1]);
-    return AutentificadorJWT::ObtenerData($token)->tipo;
+    if($queDatoConseguir=="sector")
+    {
+      return AutentificadorJWT::ObtenerData($token)->tipo;
+    }
+    else if($queDatoConseguir=="id")
+    {
+      $empleadoQuePreparaLaOrden=Empleado::obtenerEmpleado(AutentificadorJWT::ObtenerData($token)->nickNameUser);
+      return $empleadoQuePreparaLaOrden->id;
+    }
   }
 }

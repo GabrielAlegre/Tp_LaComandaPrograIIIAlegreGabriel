@@ -89,4 +89,10 @@ $app->group('/ordenes', function (RouteCollectorProxy $group) {
   ->add(\MwVerificacionDeAccesos::class . ':esMozo');
 });
 
+$app->group('/encuesta', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \ProductoController::class . ':TraerTodos');
+  $group->get('/{idProdu}', \ProductoController::class . ':TraerUno');
+  $group->post('[/]', \PedidoController::class . ':realizarEncuesta');
+});
+
 $app->run();
