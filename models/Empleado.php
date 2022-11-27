@@ -7,20 +7,20 @@ class Empleado
     public $nickNameUser;
     public $clave;
     public $fechaAlta;
-    public $tipoDePersonal;
+    public $tipoDeEmpleado;
     public $fechaBaja;
     
     public function crearEmpleado()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta(
-        "INSERT INTO empleados (nombre, nickNameUser, clave, fechaAlta, tipoDePersonal) 
-         VALUES (:nombre, :nickNameUser, :clave, :fechaAlta, :tipoDePersonal)");
+        "INSERT INTO empleados (nombre, nickNameUser, clave, fechaAlta, tipoDeEmpleado) 
+         VALUES (:nombre, :nickNameUser, :clave, :fechaAlta, :tipoDeEmpleado)");
         $claveHash = password_hash($this->clave, PASSWORD_DEFAULT);
         $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
         $consulta->bindValue(':nickNameUser', $this->nickNameUser, PDO::PARAM_STR);
         $consulta->bindValue(':clave', $claveHash);
-        $consulta->bindValue(':tipoDePersonal', $this->tipoDePersonal, PDO::PARAM_STR);
+        $consulta->bindValue(':tipoDeEmpleado', $this->tipoDeEmpleado, PDO::PARAM_STR);
         $consulta->bindValue(':fechaAlta', date('Y/m/d H:i:s') , PDO::PARAM_STR);
         $consulta->execute();
 
@@ -39,7 +39,7 @@ class Empleado
     public static function obtenerEmpleado($nickDelUsuario)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, nombre, nickNameUser, clave, fechaAlta, tipoDePersonal, fechaBaja FROM empleados WHERE nickNameUser = :nick");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, nombre, nickNameUser, clave, fechaAlta, tipoDeEmpleado, fechaBaja FROM empleados WHERE nickNameUser = :nick");
         $consulta->bindValue(':nick', $nickDelUsuario, PDO::PARAM_STR);
         $consulta->execute();
 

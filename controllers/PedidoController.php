@@ -1,31 +1,39 @@
 <?php
 require_once './models/Pedido.php';
 require_once './models/Mesa.php';
+require_once './models/ordenProducto.php';
 require_once './interfaces/IApiUsable.php';
 
 class PedidoController extends Pedido
 {
     public function CargarUno($request, $response, $args)
     {
+      echo "hola";
         $parametros = $request->getParsedBody();
 
         if(!empty($parametros['nombreCliente']) && !empty($parametros['codigoDeLaMesaUtilizada']))
         {
           $codigoDeMesa = $parametros['codigoDeLaMesaUtilizada'];
-          $seEncontroMesa=Mesa::obtenerMesa($codigoDeMesa);
-          if($seEncontroMesa)
+          $mesaEncontrada=Mesa::obtenerMesa($codigoDeMesa);
+          if($mesaEncontrada)
           {
-            $numeroDePedido=PedidoController::crearNroDePedido();
-            
-            $pedido = new Pedido();
-            $pedido->nombreDelCliente = $parametros['nombreCliente'];
-            $pedido->nroDePedido = $numeroDePedido;
-            $pedido->codigoDeMesaAsociada = $codigoDeMesa;
-            $pedido->pathFoto = PedidoController::generarPathImagen($request, $numeroDePedido);
-            $pedido->fechaDeCuandoSeTomoElPedido = date('Y/m/d H:i:s');
-            $pedido->crearPedido();
-    
-            $payload = json_encode(array("mensaje" => "Pedido creado con exito: El numero de pedido es: ${numeroDePedido} y el codigo de su mesa es: ${codigoDeMesa}"));
+            if($mesaEncontrada->estado==="cerrada")
+            {
+              Mesa::actualizarEstadoMesa($codigoDeMesa, "con cliente esperando al mozo para ordenar productos");
+              $numeroDePedido=PedidoController::crearNroDePedido();
+              $pedido = new Pedido();
+              $pedido->nombreDelCliente = $parametros['nombreCliente'];
+              $pedido->nroDePedido = $numeroDePedido;
+              $pedido->codigoDeMesaAsociada = $codigoDeMesa;
+              $pedido->pathFoto = PedidoController::generarPathImagen($request, $numeroDePedido);
+              $pedido->crearPedido();
+      
+              $payload = json_encode(array("mensaje" => "Pedido creado con exito! El numero de pedido es: ${numeroDePedido} y el codigo de su mesa es: ${codigoDeMesa}, estamos a la espera de que ordene los productos que quiera!"));
+            }
+            else
+            {
+              $payload = json_encode(array("mensaje" => "Lo sentimos, la mesa con el codigo ${codigoDeMesa} esta en uso"));
+            }
           }
           else
           {
@@ -87,5 +95,18 @@ class PedidoController extends Pedido
         $path = "";
       }
       return $path;
+    }
+
+    public static function cambiarEstadoAlPedidoEnListoParaServir($nroDePedido)
+    {
+      $sePuedeCambiarEstado = true;
+      $ordenesDelPedido = ordenProducto::traerTodasLasOrdenesDeUnPedido($nroDePedido);
+      foreach ($ordenesDelPedido as $unaOrdenDelPedido) {
+        if($unaOrdenDelPedido->estado!="listo para servir"){
+          $sePuedeCambiarEstado = false;
+          break;
+        }
+      }
+      return $sePuedeCambiarEstado?PedidoController::actualizarEstadoPedido($nroDePedido, "listo para servir"):false;
     }
 }
