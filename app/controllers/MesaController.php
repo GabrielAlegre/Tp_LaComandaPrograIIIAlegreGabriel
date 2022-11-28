@@ -54,6 +54,7 @@ class MesaController extends Mesa
       $mesasUtilizadas=array_map( function($a){return $a->codigoDeMesaAsociada;}, Pedido::obtenerTodos());
       $mesasConLasVecesQueLasUtilizaron=array_count_values($mesasUtilizadas);
 
+
       $mesasMasUtilizadas=array_keys($mesasConLasVecesQueLasUtilizaron, max($mesasConLasVecesQueLasUtilizaron));
 
       $payload = json_encode(array("mesasMasUtilizadas" => $mesasMasUtilizadas));

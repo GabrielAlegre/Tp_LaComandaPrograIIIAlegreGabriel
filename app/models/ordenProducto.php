@@ -110,23 +110,5 @@ class ordenProducto
         $consulta->execute();
 
         return $consulta->rowCount();
-    }
-
-    /*
-    public static function asignarEmpleadoQuePrepararaLaOrden($nroDelPedidoRelacionado, $idEmpleado, $sector)
-    {
-        $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta(
-        "UPDATE ordenes_productos  INNER JOIN productos on ordenes_productos.idDelProductoElegido=productos.id 
-        SET ordenes_productos.idEmpleadoQuePrepararaLaOrden = :id WHERE nroDePedidoAlQueCorrespondeLaOrden = :numPedido AND productos.sectorEncargado = :sector AND ordenes_productos.estado = 'pendiente'
-        LIMIT 1");
-        $consulta->bindValue(':numPedido', $nroDelPedidoRelacionado, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $idEmpleado, PDO::PARAM_STR);
-        $consulta->bindValue(':sector', $sector, PDO::PARAM_STR);
-        $consulta->execute();
-
-        return $consulta->rowCount();
-    }*/
-
-    
+    }    
 }

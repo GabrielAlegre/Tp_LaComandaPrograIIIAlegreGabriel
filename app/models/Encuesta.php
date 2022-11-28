@@ -32,5 +32,16 @@ class Encuesta
 
         return $objAccesoDatos->obtenerUltimoId();
     }
+
+    public static function obtenerMejoresComentarios()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT promedio, descripcion FROM encuestas WHERE promedio BETWEEN '8' AND '10'");
+
+        $consulta->execute();
+       
+
+        return $consulta->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+    }
     
 }

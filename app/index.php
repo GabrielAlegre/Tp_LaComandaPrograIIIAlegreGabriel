@@ -71,6 +71,8 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 $app->group('/productos', function (RouteCollectorProxy $group) {
   $group->get('[/]', \ProductoController::class . ':TraerTodos');
   $group->get('/{idProdu}', \ProductoController::class . ':TraerUno');
+  $group->post('/csv/crearCsvConDatosDeUnaTabla', \ProductoController::class . ':crearCsvConDatosDeUnaTabla');
+  $group->post('/csv/cargar', \ProductoController::class . ':cargarTablaConDatosDelCSv');
   $group->post('/altaProducto', \ProductoController::class . ':CargarUno');
 });
 
@@ -90,8 +92,7 @@ $app->group('/ordenes', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/encuesta', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \ProductoController::class . ':TraerTodos');
-  $group->get('/{idProdu}', \ProductoController::class . ':TraerUno');
+  $group->get('/mejoresComentarios', \PedidoController::class . ':mejoresComentariosEncuesta');
   $group->post('[/]', \PedidoController::class . ':realizarEncuesta');
 });
 

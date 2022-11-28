@@ -1,6 +1,7 @@
 <?php
 require_once './models/Producto.php';
 require_once './models/Pedido.php';
+require_once './models/Csv.php';
 require_once './interfaces/IApiUsable.php';
 
 class ProductoController extends Producto
@@ -48,4 +49,43 @@ class ProductoController extends Producto
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
+    public function crearCsvConDatosDeUnaTabla($request, $response, $args)
+    {
+
+      $payload =Csv::crearCsvConDatosDeLaTabla()?json_encode(array("mensaje" => "Se cargo el csv con datos exitosamente!"))
+      :json_encode(array("mensaje" => "Error, verifique la informacion ingresada"));
+      $response->getBody()->write( $payload);
+   
+
+      return $response->withHeader('Content-Type', 'application/json');;
+    }
+
+    public function cargarTablaConDatosDelCSv($request, $response, $args)
+    {
+      try
+      {
+        $file=$_FILES["archivoCSV"]["tmp_name"];
+        $seCargo=Csv::cargarTablaConDatosDeUnCSv($file);
+        if($seCargo)
+        {
+          readfile($file);
+          $res=$response->withHeader('Content-Type', 'text/csv');
+        }
+        else
+        {
+          $res=$response->withHeader('Content-Type', 'application/json');
+          $response->getBody()->write(json_encode(array("mensaje" => "Error, verifique la informacion ingresada")));
+        }
+      }
+      catch(Exception  $e)
+      {
+        printf("Excepción capturada: {$e->getMessage()}");
+      }
+      finally
+      {
+        return $res;
+      }    
+    }
+
 }

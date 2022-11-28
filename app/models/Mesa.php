@@ -49,7 +49,6 @@ class Mesa
         return $consulta->rowCount();
     }
 
-
     public static function cobrarMesaYCambiarEstado($codigoDeMesaQueSeModificara, $nuevoEstado)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

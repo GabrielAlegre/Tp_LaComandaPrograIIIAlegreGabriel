@@ -38,4 +38,12 @@ class Producto
 
         return $consulta->fetchObject('Producto');
     }
+
+    public static function borrarTodosLosProductos()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("TRUNCATE TABLE productos");
+        $consulta->execute();
+        return $consulta->rowCount();
+    }
 }

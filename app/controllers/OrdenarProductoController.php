@@ -28,7 +28,7 @@ class OrdenarProductoController extends Producto
         {
           if($pedidoAlQueCorrespondeLaOrden->estado == "Esperando que el cliente ordene")
           Pedido::actualizarEstadoPedido($pedidoAlQueCorrespondeLaOrden->nroDePedido, "Pendiente");
-          Mesa::actualizarEstadoMesa($pedidoAlQueCorrespondeLaOrden->codigoDeMesaAsociada, "con cliente esperando esperando pedido");
+          Mesa::actualizarEstadoMesa($pedidoAlQueCorrespondeLaOrden->codigoDeMesaAsociada, "con cliente esperando pedido");
           $orden = new ordenProducto();
           $orden->idDelProductoElegido = $idDelProductoOrdenado;
           $orden->nroDePedidoAlQueCorrespondeLaOrden = $nroDePedidoRelacionado;

@@ -177,6 +177,13 @@ class PedidoController extends Pedido
         ->withHeader('Content-Type', 'application/json');
     }
 
+    public static function mejoresComentariosEncuesta($request, $response, $args)
+    {
+      $payload=json_encode(array("MejoresComentarios" => Encuesta::obtenerMejoresComentarios()));
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
 
     public static function conseguirIdDelMozoQueTomoElPedidoPorElToken($request)
     {
